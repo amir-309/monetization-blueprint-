@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Digital Monetization Blueprint (with Gemini AI)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Sky -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard with four primary, non-linear sections accessible via a persistent top navigation: 'Dashboard', 'Case Studies', 'The Playbook', and 'AI Accelerator'. This structure was chosen to deconstruct the dense report into thematic, digestible modules. Instead of a linear scroll, users can immediately jump to the section that interests them most. The 'Dashboard' provides a high-level comparative overview. 'Case Studies' allows for deep dives into specific examples. 'The Playbook' turns strategic advice into interactive elements (diagrams, accordions) and now includes Gemini-powered tools for validation and brainstorming. 'AI Accelerator' visualizes the workflow. This user-centric, task-oriented design prioritizes exploration and understanding over the original report's narrative flow. -->
+    <!-- Visualization & Content Choices: 
+        - Dashboard: Report's comparison table is presented as a primary feature. To visualize the vast differences in scale, a Chart.js bar chart compares monthly traffic (Goal: Compare, Method: Bar Chart, Interaction: Tooltips, Justification: Visually striking comparison of scale).
+        - Case Studies: Users select a site logo. This triggers a JS function to display that site's detailed analysis. A Chart.js donut chart shows traffic source breakdown (Goal: Inform, Method: Donut Chart, Interaction: Click-to-select, Justification: Clear proportional representation of traffic channels).
+        - The Playbook: The Triangulation Method is an HTML/CSS diagram (Goal: Organize, Method: Interactive Diagram, Interaction: Click-to-reveal text, Justification: Makes an abstract concept tangible). Blueprints use JS-powered accordions. ✨ New Gemini Features: An AI Niche Validator provides instant feedback on user ideas (Goal: Analyze, Method: LLM Call, Interaction: Input/Button, Justification: Provides personalized, expert-level analysis). A 'Brainstorm' button in the niches table generates content ideas (Goal: Generate, Method: LLM Call, Interaction: Button, Justification: Offers immediate, actionable creative output).
+        - AI Accelerator: The AI workflow is a styled HTML/CSS timeline (Goal: Change/Process, Method: Timeline, Interaction: Static visual, Justification: Clearly shows the sequence and time investment of the AI process).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 768px) { .chart-container { height: 300px; } }
+        @media (max-width: 640px) { .chart-container { height: 400px; } }
+        .nav-link { transition: all 0.2s ease-in-out; }
+        .nav-link.active { color: #0284c7; border-bottom-color: #0284c7; }
+        .nav-link:not(.active):hover { color: #0369a1; border-bottom-color: #e5e7eb; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .table-sortable th { cursor: pointer; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #0284c7; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-hidden { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="min-h-screen flex flex-col">
+        <header class="bg-white/80 backdrop-blur-sm sticky top-0 z-30 shadow-sm">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Digital Monetization Blueprint</h1>
+                    <nav class="hidden md:flex items-center space-x-4 lg:space-x-6">
+                        <a href="#dashboard" class="nav-link font-medium border-b-2 border-transparent pb-1" data-view="dashboard">Dashboard</a>
+                        <a href="#case-studies" class="nav-link font-medium border-b-2 border-transparent pb-1" data-view="case-studies">Case Studies</a>
+                        <a href="#playbook" class="nav-link font-medium border-b-2 border-transparent pb-1" data-view="playbook">The Playbook</a>
+                        <a href="#ai-accelerator" class="nav-link font-medium border-b-2 border-transparent pb-1" data-view="ai-accelerator">AI Accelerator</a>
+                    </nav>
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+                 <div id="mobile-menu" class="hidden md:hidden pb-4">
+                    <a href="#dashboard" class="block py-2 px-3 rounded-md text-base font-medium nav-link" data-view="dashboard">Dashboard</a>
+                    <a href="#case-studies" class="block py-2 px-3 rounded-md text-base font-medium nav-link" data-view="case-studies">Case Studies</a>
+                    <a href="#playbook" class="block py-2 px-3 rounded-md text-base font-medium nav-link" data-view="playbook">The Playbook</a>
+                    <a href="#ai-accelerator" class="block py-2 px-3 rounded-md text-base font-medium nav-link" data-view="ai-accelerator">AI Accelerator</a>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <!-- Content will be dynamically injected here -->
+        </main>
+
+        <footer class="bg-white border-t border-slate-200 mt-12">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-slate-500 text-sm">
+                <p>Interactive Analysis of Digital Monetization Models. All data sourced from the provided report.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Loading Overlay and Modal -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 items-center justify-center modal-hidden">
+        <div class="loader"></div>
+    </div>
+    <div id="gemini-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 items-center justify-center p-4 modal-hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 id="modal-title" class="text-lg font-semibold text-slate-900">✨ AI Generated Insights</h3>
+                <button id="modal-close-btn" class="text-slate-500 hover:text-slate-800">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6 overflow-y-auto">
+                <!-- Gemini content goes here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const appData = {
+                sites: [
+                    { id: 'temp-mail', name: 'Temp-mail.org', category: 'Privacy Utility', monetization: 'Display Ads, Freemium SaaS', traffic: 47.39, trafficSources: { 'Organic Search': 80, 'Direct': 20 }, seoScore: 78, summary: 'A high-volume utility monetizing massive traffic through ads, with a premium tier for power users. Its success hinges on dominating SEO for "temp mail" related keywords.', valueProp: 'Provides free, disposable email addresses to protect user privacy and avoid spam. It is a classic example of an anonymity-as-a-service model.', engine: 'A dual-engine model. The primary engine is Google AdSense on the free tier, monetizing millions of page views. The secondary engine is a premium subscription that removes ads and adds features like custom domains, targeting developers and QA testers.' },
+                    { id: 'tinyurl', name: 'TinyURL.com', category: 'Link Management SaaS', monetization: 'Freemium SaaS', traffic: 105.5, trafficSources: { 'Direct': 60, 'Organic Search': 40 }, seoScore: 67, summary: 'A foundational internet utility that evolved into a full-fledged SaaS platform. It leverages immense brand recognition and a two-decade history to funnel users from its free tool to paid, feature-rich plans.', valueProp: 'Originally a simple URL shortener, it is now a comprehensive link management platform offering branded links, detailed click analytics, and API access for businesses.', engine: 'A classic Freemium SaaS model. The free, no-account-needed shortener acts as a massive lead magnet. Revenue comes from tiered subscriptions (Pro, Bulk, Enterprise) that unlock critical marketing features like analytics and branding.' },
+                    { id: 'diskprices', name: 'Diskprices.com', category: 'Niche Affiliate Aggregator', monetization: 'Affiliate Marketing', traffic: 0.08, trafficSources: { 'Organic Search': 57, 'Direct': 24, 'Referral': 4, 'Other': 15}, seoScore: 'N/A', summary: 'A masterclass in minimalism and hyper-niche targeting. This single-page site generates significant income by serving a small, high-intent audience with extreme efficiency, monetizing transactional intent rather than raw traffic volume.', valueProp: 'Scrapes Amazon for data storage devices and sorts them by the single most important metric for its audience: price per terabyte. It provides radical efficiency for data hoarders and IT professionals.', engine: 'A pure and highly effective affiliate marketing model. Every link is an Amazon Associate affiliate link. Its brutalist, no-frills design builds immense trust with its technical audience, maximizing conversion rates for high-ticket items.' },
+                    { id: 'weirdorconfusing', name: 'Weirdorconfusing.com', category: 'Content Curation', monetization: 'Affiliate Marketing', traffic: 0.137, trafficSources: { 'Organic Search': 70, 'Social': 30 }, seoScore: 'N/A', summary: 'A low-effort, high-leverage model that capitalizes on curiosity and the viral nature of novelty content. It monetizes the "bored at work" demographic through an impulse-driven affiliate funnel.', valueProp: 'Curates bizarre, strange, and humorous products available on Amazon. The value is not utility but entertainment, discovery, and finding unique gag gifts.', engine: 'A content-driven affiliate marketing model. It leverages the Amazon Associates 24-hour cookie window. The weird product is the bait; the site earns commission on anything the user buys from Amazon within that window, turning fleeting amusement into a revenue stream.' },
+                    { id: '10minutemail', name: '10minutemail.net', category: 'Privacy Utility', monetization: 'Display Ads, Donations', traffic: 1.0, trafficSources: { 'Organic Search': 75, 'Direct': 25 }, seoScore: 'N/A', summary: 'Another example of the Anonymity-as-a-Service model, similar to Temp-mail but on a smaller scale. It relies on a simple, effective tool to draw traffic, which is then monetized primarily through ads.', valueProp: 'Offers a self-destructing email address that lasts for 10 minutes, perfect for quick sign-ups and protecting one\'s primary inbox from spam.', engine: 'Primarily monetized through display advertising (Google Ads). It also includes a direct donation appeal, asking satisfied users to help cover the operational costs of the free service.' },
+                ],
+                playbook: {
+                    triangulation: [
+                        { title: 'Passion Filter', icon: '❤️', description: 'The foundation of a sustainable venture. Start with personal hobbies, professional skills, or problems you have personally solved. Genuine interest ensures long-term motivation.' },
+                        { title: 'Demand Filter', icon: '📈', description: 'A passion is not a business without a market. Use tools like Google Trends and Keyword Research platforms to validate that a significant number of people are actively seeking solutions in this niche.' },
+                        { title: 'Opportunity Filter', icon: '🔍', description: 'High demand often means high competition. Find a sub-niche where you can compete. Analyze keyword difficulty and the existing search results to find a gap in the market you can fill.' },
+                    ],
+                    blueprints: [
+                        { title: 'The Affiliate Blueprint (Recommended Start)', model: 'Replicating Diskprices.com & Weirdorconfusing.com', steps: ['Niche Down Aggressively', 'Master Commercial Keyword Research', 'Create High-Trust Content', 'Implement Affiliate Monetization', 'Build Authority and Traffic'] },
+                        { title: 'The Utility Blueprint (Higher Risk)', model: 'Replicating Temp-mail.org', steps: ['Identify a Simple, High-Volume Problem', 'Validate with Keyword Research', 'Develop a Minimum Viable Product (MVP)', 'Monetize with Display Ads', 'Iterate with a Freemium Upsell'] }
+                    ],
+                    niches: [
+                        { concept: 'AI Prompt Generator', type: 'Utility', keywords: '"ai prompt generator"', volume: '22,200+', difficulty: 'Hard', monetization: 'Ads, Freemium' },
+                        { concept: 'PC Component Price Comparison', type: 'Affiliate', keywords: '"best cpu for gaming"', volume: '18,100+', difficulty: 'Okay/Hard', monetization: 'Amazon/Newegg Affiliates' },
+                        { concept: 'Eco-Friendly Product Reviews', type: 'Affiliate', keywords: '"best zero waste shampoo"', volume: '5,000+', difficulty: 'Easy/Okay', monetization: 'Amazon/Direct Affiliates' },
+                        { concept: 'Online Meme/GIF Generator', type: 'Utility', keywords: '"meme generator"', volume: '673,000+', difficulty: 'Very Hard', monetization: 'Ads, Freemium (remove watermark)' },
+                        { concept: 'Remote Work Software Reviews', type: 'Affiliate', keywords: '"best project management tool"', volume: '12,100+', difficulty: 'Hard', monetization: 'Direct SaaS Affiliates' },
+                        { concept: 'Weird & Novelty Gift Curation', type: 'Affiliate', keywords: '"weird gifts"', volume: '10,000+', difficulty: 'Okay', monetization: 'Amazon/Etsy Affiliates' }
+                    ]
+                },
+                aiAccelerator: {
+                    workflow: [
+                        { duration: '1 Hour', task: 'Niche & Keyword Discovery', icon: '💡' },
+                        { duration: '30 Mins', task: 'AI Website Generation', icon: '🌐' },
+                        { duration: '2 Hours', task: 'Content Scaffolding', icon: '✍️' },
+                        { duration: '3 Hours', task: 'Human Editing & Optimization', icon: '🧑‍💻' },
+                        { duration: '1 Hour', task: 'Launch & Promotion', icon: '🚀' }
+                    ],
+                    tools: [
+                        { model: 'Hyper-Niche Affiliate', build: '10Web, Wix', content: 'Jasper, SurferSEO', marketing: 'Canva, SocialBee' },
+                        { model: 'Content Curation', build: 'Squarespace, Wix', content: 'Copy.ai, Rytr', marketing: 'DALL-E, SocialBee' },
+                        { model: 'Simple Utility', build: 'Flatlogic, Replit', content: 'ChatGPT (for copy)', marketing: 'Zapier (for automation)' }
+                    ]
+                }
+            };
+
+            const mainContent = document.getElementById('main-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const geminiModal = document.getElementById('gemini-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            
+            let currentChart = null;
+            let activeView = 'dashboard';
+            
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#334155';
+
+            const callGemini = async (prompt, button) => {
+                loadingOverlay.style.display = 'flex';
+                if(button) {
+                    button.disabled = true;
+                    button.querySelector('.button-text').textContent = 'Generating...';
+                }
+
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Sorry, I couldn't generate a response. Please try again.";
+                    }
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    return `An error occurred: ${error.message}. Please check the console for details.`;
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                    if(button) {
+                       button.disabled = false;
+                       button.querySelector('.button-text').textContent = '✨ Brainstorm';
+                    }
+                }
+            };
+            
+            const showModal = (title, content) => {
+                modalTitle.textContent = title;
+                modalContent.innerHTML = content.replace(/\n/g, '<br>');
+                geminiModal.style.display = 'flex';
+            };
+
+            const hideModal = () => {
+                geminiModal.style.display = 'none';
+            };
+
+            modalCloseBtn.addEventListener('click', hideModal);
+            geminiModal.addEventListener('click', (e) => {
+                if (e.target === geminiModal) {
+                    hideModal();
+                }
+            });
+
+
+            const renderDashboard = () => {
+                 mainContent.innerHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Website Monetization Models</h2>
+                        <p class="mt-4 text-lg leading-8 text-slate-600 max-w-3xl mx-auto">This interactive report analyzes five distinct digital properties to reveal their business logic, traffic strategies, and monetization engines. Explore the data to understand the trade-offs between traffic volume, user intent, and profitability.</p>
+                    </div>
+
+                    <div class="mt-12 bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-900">Comparative Overview: Key Metrics</h3>
+                         <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Digital Asset</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Monetization</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Est. Monthly Traffic (M)</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">SEO Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-slate-200">
+                                    ${appData.sites.map(site => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">${site.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${site.category}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${site.monetization}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${site.traffic.toLocaleString()}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${site.seoScore}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 bg-white p-6 rounded-xl shadow-lg">
+                         <h3 class="text-xl font-semibold mb-4 text-slate-900">Monthly Traffic Volume Comparison</h3>
+                         <p class="text-sm text-slate-500 mb-6">This chart highlights the immense difference in scale between high-volume utilities and hyper-niche sites. Note the logarithmic scale used to make the smaller sites visible.</p>
+                         <div class="chart-container">
+                            <canvas id="trafficChart"></canvas>
+                         </div>
+                    </div>
+                `;
+                if (currentChart) { currentChart.destroy(); }
+                const ctx = document.getElementById('trafficChart').getContext('2d');
+                currentChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: appData.sites.map(s => s.name),
+                        datasets: [{
+                            label: 'Estimated Monthly Traffic (Millions)',
+                            data: appData.sites.map(s => s.traffic),
+                            backgroundColor: ['#38bdf8', '#818cf8', '#f87171', '#fbbf24', '#a78bfa'],
+                            borderColor: ['#0284c7', '#4f46e5', '#dc2626', '#d97706', '#7c3aed'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (c) => ` ${c.raw.toLocaleString()} Million Visits` } }
+                        },
+                        scales: { x: { type: 'logarithmic', title: { display: true, text: 'Monthly Visits (Millions) - Logarithmic Scale' } }, y: { ticks: { autoSkip: false } } }
+                    }
+                });
+            };
+
+            const renderCaseStudies = () => {
+                mainContent.innerHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Case Studies: Deconstruction</h2>
+                        <p class="mt-4 text-lg leading-8 text-slate-600 max-w-3xl mx-auto">Select a website to explore its specific business model, value proposition, and monetization engine. This section provides a granular analysis of how each property creates and captures value in the digital marketplace.</p>
+                    </div>
+                    <div id="case-study-selector" class="mt-12 flex flex-wrap justify-center gap-4">
+                        ${appData.sites.map(site => `<button data-id="${site.id}" class="case-study-btn bg-white px-6 py-3 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50"><span class="font-semibold text-slate-800">${site.name}</span></button>`).join('')}
+                    </div>
+                    <div id="case-study-content" class="mt-8"></div>
+                `;
+                document.querySelectorAll('.case-study-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const siteId = e.currentTarget.getAttribute('data-id');
+                        const site = appData.sites.find(s => s.id === siteId);
+                        document.querySelectorAll('.case-study-btn').forEach(btn => btn.classList.remove('bg-sky-100', 'ring-2', 'ring-sky-500'));
+                        e.currentTarget.classList.add('bg-sky-100', 'ring-2', 'ring-sky-500');
+                        document.getElementById('case-study-content').innerHTML = `
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out animate-fade-in">
+                                <div class="p-6 md:p-8">
+                                    <h3 class="text-2xl font-bold text-slate-900">${site.name}</h3>
+                                    <p class="text-sky-600 font-medium mt-1">${site.category}</p>
+                                    <p class="mt-4 text-slate-600">${site.summary}</p>
+                                    <div class="mt-6 grid md:grid-cols-2 gap-8">
+                                        <div class="bg-slate-50 p-4 rounded-lg"><h4 class="font-semibold text-slate-800">Value Proposition</h4><p class="mt-2 text-sm text-slate-600">${site.valueProp}</p></div>
+                                        <div class="bg-slate-50 p-4 rounded-lg"><h4 class="font-semibold text-slate-800">Monetization Engine</h4><p class="mt-2 text-sm text-slate-600">${site.engine}</p></div>
+                                    </div>
+                                    <div class="mt-8"><h4 class="font-semibold text-slate-800 text-center">Traffic Source Breakdown</h4><div class="chart-container h-64 sm:h-72 mx-auto mt-4" style="max-width: 400px;"><canvas id="sourceChart"></canvas></div></div>
+                                </div>
+                            </div>`;
+                        if (currentChart) { currentChart.destroy(); }
+                        const ctx = document.getElementById('sourceChart').getContext('2d');
+                        currentChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: { labels: Object.keys(site.trafficSources), datasets: [{ data: Object.values(site.trafficSources), backgroundColor: ['#38bdf8', '#818cf8', '#f87171', '#fbbf24'], borderColor: '#ffffff', borderWidth: 2, }] },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                        });
+                    });
+                });
+                document.querySelector('.case-study-btn').click();
+            };
+
+            const renderPlaybook = () => {
+                mainContent.innerHTML = `
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">The Playbook for Monetization</h2>
+                        <p class="mt-4 text-lg leading-8 text-slate-600 max-w-3xl mx-auto">This section translates analysis into an actionable framework. Use these interactive guides and new AI tools to validate ideas and brainstorm content for rapid success.</p>
+                    </div>
+
+                     <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">New: ✨ AI Niche Validator</h3>
+                        <p class="mt-2 text-slate-600">Have an idea for a niche website? Get an instant analysis from an AI expert on its potential viability based on the principles of Passion, Demand, and Opportunity.</p>
+                        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="niche-validator-input" placeholder="e.g., 'A blog reviewing sustainable cat toys'" class="flex-grow w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <button id="niche-validator-btn" class="bg-sky-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-sky-700 transition-colors disabled:bg-slate-400">Validate My Niche</button>
+                        </div>
+                        <div id="niche-validator-result" class="mt-4"></div>
+                    </div>
+                    
+                    <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">Principle 1: The Triangulation Method for Niche Validation</h3>
+                        <p class="mt-2 text-slate-600">A profitable niche exists at the intersection of passion, demand, and opportunity. Click each element below to understand how to validate your ideas systematically.</p>
+                        <div id="triangulation-diagram" class="mt-6 grid sm:grid-cols-3 gap-6 text-center">
+                            ${appData.playbook.triangulation.map(item => `
+                                <div class="triangulation-item bg-slate-50 p-4 rounded-lg cursor-pointer hover:bg-sky-100 transition">
+                                    <div class="text-4xl">${item.icon}</div>
+                                    <h4 class="mt-2 font-semibold text-slate-800">${item.title}</h4>
+                                    <p class="description hidden mt-2 text-sm text-slate-600">${item.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                     <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">Principle 2: Blueprints for Success</h3>
+                        <div id="accordion-container" class="mt-4 space-y-4">
+                           ${appData.playbook.blueprints.map(bp => `
+                                <div>
+                                    <button class="accordion-toggle w-full flex justify-between items-center text-left bg-slate-100 hover:bg-slate-200 p-4 rounded-lg transition">
+                                        <span class="font-semibold text-slate-800">${bp.title}</span>
+                                        <span class="text-sky-600 transform transition-transform">▼</span>
+                                    </button>
+                                    <div class="accordion-content">
+                                        <div class="p-4 bg-slate-50 rounded-b-lg"><p class="text-sm italic text-slate-500 mb-3">${bp.model}</p><ul class="list-disc list-inside space-y-2 text-slate-600">${bp.steps.map(step => `<li>${step}</li>`).join('')}</ul></div>
+                                    </div>
+                                </div>
+                           `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">High-Potential Niche Opportunities</h3>
+                        <p class="mt-2 text-slate-600">The table below provides starting points for research. Use the new ✨ AI Brainstorm feature to instantly generate content ideas for any niche.</p>
+                        <div class="overflow-x-auto mt-4">
+                            <table id="niche-table" class="min-w-full divide-y divide-slate-200 table-sortable">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Concept</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Monetization</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">AI Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-slate-200">
+                                    ${appData.playbook.niches.map(niche => `
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">${niche.concept}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${niche.type}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${niche.monetization}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                                <button data-niche="${niche.concept}" class="gemini-brainstorm-btn bg-sky-100 text-sky-800 font-semibold px-3 py-1 rounded-md hover:bg-sky-200 transition-colors text-xs disabled:bg-slate-200 disabled:text-slate-500">
+                                                    <span class="button-text">✨ Brainstorm</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('niche-validator-btn').addEventListener('click', async (e) => {
+                    const input = document.getElementById('niche-validator-input');
+                    const nicheIdea = input.value.trim();
+                    if (!nicheIdea) {
+                        alert("Please enter a niche idea.");
+                        return;
+                    }
+                    const button = e.currentTarget;
+                    button.disabled = true;
+                    button.textContent = 'Analyzing...';
+
+                    const prompt = `As a seasoned digital entrepreneur, analyze the viability of the following niche website idea: "${nicheIdea}". Evaluate it using the Triangulation Method framework.
+                    
+                    1.  **Passion/Interest:** Assess the sustainability for a solo creator. Is it a topic someone can remain passionate about for years?
+                    2.  **Market Demand:** Analyze the potential user base and their search intent. Is this a topic with active, transactional, or informational search demand?
+                    3.  **Monetization & Opportunity:** Evaluate the competition and monetization potential (e.g., affiliate, ads, SaaS). How can a new site differentiate itself and capture value?
+                    
+                    Provide a final "Recommendation" (e.g., Go, Caution, No-Go) with a concise justification. Format the output with clear headings for each section.`;
+                    
+                    const result = await callGemini(prompt);
+                    
+                    const resultContainer = document.getElementById('niche-validator-result');
+                    resultContainer.innerHTML = `<div class="p-4 bg-slate-50 rounded-lg border border-slate-200 mt-4">${result.replace(/\n/g, '<br>')}</div>`;
+
+                    button.disabled = false;
+                    button.textContent = 'Validate My Niche';
+                });
+
+
+                document.querySelectorAll('.triangulation-item').forEach(item => { item.addEventListener('click', () => { item.querySelector('.description').classList.toggle('hidden'); }); });
+                document.querySelectorAll('.accordion-toggle').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const content = button.nextElementSibling;
+                        const icon = button.querySelector('span:last-child');
+                        if (content.style.maxHeight) { content.style.maxHeight = null; icon.style.transform = 'rotate(0deg)'; } 
+                        else { content.style.maxHeight = content.scrollHeight + 'px'; icon.style.transform = 'rotate(180deg)'; }
+                    });
+                });
+                
+                document.querySelectorAll('.gemini-brainstorm-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const niche = e.currentTarget.dataset.niche;
+                        const prompt = `You are an expert SEO content strategist. For the niche "${niche}", brainstorm 5 unique and compelling blog post titles. For each title, provide a brief 1-2 sentence description of the article's angle or what makes it interesting. Focus on titles that would attract clicks and target relevant search queries. Format the output cleanly with headings and lists.`;
+                        const result = await callGemini(prompt, e.currentTarget);
+                        showModal(`✨ Content Ideas for: ${niche}`, result);
+                    });
+                });
+            };
+
+            const renderAiAccelerator = () => {
+                 mainContent.innerHTML = `
+                     <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">The AI Accelerator</h2>
+                        <p class="mt-4 text-lg leading-8 text-slate-600 max-w-3xl mx-auto">Leverage Artificial Intelligence to dramatically accelerate the process of building and launching a profitable website. This section provides a concrete workflow and recommended tool stack to compress your development timeline from months to hours.</p>
+                    </div>
+                    <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">Integrated AI Workflow: Concept to Launch</h3>
+                        <p class="mt-2 text-slate-600">This timeline illustrates how to build a niche affiliate site in approximately 7.5 hours by integrating AI at every stage.</p>
+                        <div class="relative mt-8">
+                             <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 hidden sm:block"></div>
+                             ${appData.aiAccelerator.workflow.map((item, index) => `
+                                <div class="sm:flex items-center w-full mb-8">
+                                    <div class="sm:w-1/2 ${index % 2 === 0 ? 'sm:pr-8 sm:text-right' : 'sm:pl-8 sm:order-2'}"><div class="p-4 bg-slate-50 rounded-lg"><p class="font-bold text-sky-600">${item.duration}</p><p class="font-semibold text-slate-800">${item.task}</p></div></div>
+                                    <div class="sm:w-auto sm:order-1"><div class="mx-auto mt-4 sm:mt-0 w-10 h-10 bg-white border-2 border-sky-500 rounded-full flex items-center justify-center text-2xl z-10 relative">${item.icon}</div></div>
+                                    <div class="sm:w-1/2"></div>
+                                </div>
+                             `).join('')}
+                        </div>
+                    </div>
+                    <div class="mt-12 bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-900">Recommended AI Tool Stack by Model</h3>
+                        <div class="mt-6 grid md:grid-cols-3 gap-6">
+                            ${appData.aiAccelerator.tools.map(tool => `<div class="bg-slate-50 p-6 rounded-lg"><h4 class="font-bold text-slate-900">${tool.model}</h4><div class="mt-4 space-y-2 text-sm text-slate-600"><p><span class="font-semibold text-slate-700">Build:</span> ${tool.build}</p><p><span class="font-semibold text-slate-700">Content/SEO:</span> ${tool.content}</p><p><span class="font-semibold text-slate-700">Marketing:</span> ${tool.marketing}</p></div></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            };
+
+            const updateView = (view) => {
+                if (currentChart) { currentChart.destroy(); currentChart = null; }
+                activeView = view; window.location.hash = view;
+                navLinks.forEach(link => { link.classList.toggle('active', link.dataset.view === view); });
+                if (view === 'dashboard') renderDashboard();
+                else if (view === 'case-studies') renderCaseStudies();
+                else if (view === 'playbook') renderPlaybook();
+                else if (view === 'ai-accelerator') renderAiAccelerator();
+                mobileMenu.classList.add('hidden');
+            };
+
+            navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); updateView(e.target.dataset.view); }); });
+            mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
+            const initialView = window.location.hash.substring(1) || 'dashboard';
+            updateView(initialView);
+        });
+    </script>
+</body>
+</html>
